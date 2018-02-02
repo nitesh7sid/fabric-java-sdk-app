@@ -30,6 +30,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
 import com.psl.fabric.util.*;
 
 import java.io.*;
@@ -39,7 +40,7 @@ import javax.json.JsonValue;
 
 public class NetworkConfig {
 
-	static String  channelConfigPath = "src/test/fixture/crypto-config/mychannel.tx";
+	private static String pathPrefix = "C:/Users/nitesh_solanki/workspace/fabric-java-sdk-app/WebContent/fixture";
 	private static final String TEST_ADMIN_NAME = "admin";
 	private static final String TEST_ADMIN_PW = "adminpw";
 	static int GOSSIPWAITTIME = 5000;
@@ -49,14 +50,18 @@ public class NetworkConfig {
 	private static final HashMap<String, SampleOrg> sampleOrgs = new HashMap<>();
 	private static final HashMap<String, SampleOrg> sampleOrgsChannels = new HashMap<>();
 
-	public void initialConfig(String configPath) {
+	public void initialConfig(String configPath) throws FileNotFoundException, IOException, ParseException {
 
+		System.out.println(System.getProperty("user.dir"));
 		JSONParser parser = new JSONParser();
+		Object configParsedObj = parser.parse(new FileReader(configPath));
+		JSONObject configObject = (JSONObject) configParsedObj;
+		String networkConfigPath = (String) configObject
+				.get("networkConfig");
 
 		try {
 
-			Object obj = parser.parse(new FileReader(
-					"src/test/fixture/network-config.json"));
+			Object obj = parser.parse(new FileReader(networkConfigPath));
 			JSONObject jsonObject = (JSONObject) obj;
 			// System.out.println(jsonObject);
 
@@ -82,12 +87,13 @@ public class NetworkConfig {
 
 				}
 				if (orgKey.indexOf("org") == 0) {
-					
+
 					orgObject = (JSONObject) networkConfig.get(orgKey);
-					JSONObject adminObject= (JSONObject) orgObject.get("admin");
+					JSONObject adminObject = (JSONObject) orgObject
+							.get("admin");
 					String adminKeyPath = (String) adminObject.get("key");
 					String adminCertPath = (String) adminObject.get("cert");
-					
+
 					String orgName = (String) orgObject.get("name");
 					String orgMSP = (String) orgObject.get("mspid");
 					String caUrl = (String) orgObject.get("ca");
@@ -140,19 +146,22 @@ public class NetworkConfig {
 
 							Properties peerProperties = setProperties(
 									peerTlsCaCerts, peerDomainName);
-							sampleOrg.setPeerProperties(peerDomainName,peerProperties);
+							sampleOrg.setPeerProperties(peerDomainName,
+									peerProperties);
 							// add Peer in Set
-							
+
 							sampleOrgs.put(orgName, sampleOrg);
 						}
 
-						 sampleOrg.setCAClient(HFCAClient.createNewInstance(sampleOrg.getCALocation(),
-								 sampleOrg.getCAProperties()));
-						 
+						sampleOrg.setCAClient(HFCAClient.createNewInstance(
+								sampleOrg.getCALocation(),
+								sampleOrg.getCAProperties()));
+
 						setClient(sampleOrgs.get(orgName));
 						setSampleStore(sampleOrgs.get(orgName));
-						//setOrgAdmin
-						setOrgAdmin(sampleOrgs.get(orgName),adminCertPath, adminKeyPath);
+						// setOrgAdmin
+						setOrgAdmin(sampleOrgs.get(orgName), adminCertPath,
+								adminKeyPath);
 						setAdminUser(sampleOrgs.get(orgName));
 						setOrgPeers(sampleOrgs.get(orgName));
 					}
@@ -193,7 +202,7 @@ public class NetworkConfig {
 
 	private Properties setProperties(String tlsCertPath, String hostNameOverRide) {
 
-		File cf = new File("src/test/fixture" + tlsCertPath);
+		File cf = new File(pathPrefix + tlsCertPath);
 		if (!cf.exists() || !cf.isFile()) {
 			throw new RuntimeException("TEST is missing cert file "
 					+ cf.getAbsolutePath());
@@ -237,112 +246,140 @@ public class NetworkConfig {
 
 	}
 
-	public void setClient (SampleOrg sampleOrg) throws CryptoException, InvalidArgumentException{
-		
-		  HFClient client = HFClient.createNewInstance();
-		  client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
-		  sampleOrg.setClient(client);	  
-	}
-	
-	public void setSampleStore (SampleOrg sampleOrg){
-		  //Persistence is not part of SDK. Sample file store is for demonstration purposes only!
-        //   MUST be replaced with more robust application implementation  (Database, LDAP)
-        
-		File sampleStoreFile = new File(System.getProperty("java.io.tmpdir") + "/HFCSampletest"+sampleOrg.name+".properties");
-        if (sampleStoreFile.exists()) { //For testing start fresh
-            sampleStoreFile.delete();
-        }
+	public void setClient(SampleOrg sampleOrg) throws CryptoException,
+			InvalidArgumentException {
 
-        SampleStore sampleStore = new SampleStore(sampleStoreFile);
-        sampleOrg.setSampleStore(sampleStore);
+		HFClient client = HFClient.createNewInstance();
+		client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
+		sampleOrg.setClient(client);
 	}
-	
-	public void setOrgAdmin(SampleOrg sampleOrg, String adminCertPath, String adminKeyPath) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException, IOException{
-		
-		 SampleStore sampleStore = sampleOrg.getSampleStore();
-		 final String sampleOrgName = sampleOrg.getName();
-		 final String sampleOrgDomainName = sampleOrg.getDomainName();
-		SampleUser peerOrgAdmin = sampleStore.getMember(sampleOrgName + "Admin", sampleOrgName, sampleOrg.getMSPID(),
-                findFileSk(Paths.get("src/test/fixture/",adminKeyPath).toFile()),
-                Paths.get("src/test/fixture/",adminCertPath,format("/Admin@%s-cert.pem", sampleOrgDomainName)).toFile());
 
-        sampleOrg.setOrgAdmin(peerOrgAdmin); //A special user that can create channels, join peers and install chaincode
-		
-		
+	public void setSampleStore(SampleOrg sampleOrg) {
+		// Persistence is not part of SDK. Sample file store is for
+		// demonstration purposes only!
+		// MUST be replaced with more robust application implementation
+		// (Database, LDAP)
+
+		File sampleStoreFile = new File(System.getProperty("java.io.tmpdir")
+				+ "/HFCSampletest" + sampleOrg.name + ".properties");
+		if (sampleStoreFile.exists()) { // For testing start fresh
+			sampleStoreFile.delete();
+		}
+
+		SampleStore sampleStore = new SampleStore(sampleStoreFile);
+		sampleOrg.setSampleStore(sampleStore);
 	}
-	
-	public SampleUser getOrgAdmin(String orgName){
+
+	public void setOrgAdmin(SampleOrg sampleOrg, String adminCertPath,
+			String adminKeyPath) throws NoSuchAlgorithmException,
+			NoSuchProviderException, InvalidKeySpecException, IOException {
+
+		SampleStore sampleStore = sampleOrg.getSampleStore();
+		final String sampleOrgName = sampleOrg.getName();
+		final String sampleOrgDomainName = sampleOrg.getDomainName();
+		SampleUser peerOrgAdmin = sampleStore.getMember(
+				sampleOrgName + "Admin",
+				sampleOrgName,
+				sampleOrg.getMSPID(),
+				findFileSk(Paths.get(pathPrefix, adminKeyPath)
+						.toFile()),
+				Paths.get(pathPrefix, adminCertPath,
+						format("/Admin@%s-cert.pem", sampleOrgDomainName))
+						.toFile());
+
+		sampleOrg.setOrgAdmin(peerOrgAdmin); // A special user that can create
+												// channels, join peers and
+												// install chaincode
+
+	}
+
+	public SampleUser getOrgAdmin(String orgName) {
 		return sampleOrgs.get(orgName).getOrgAdmin();
 	}
-	
+
 	private static File findFileSk(File directory) {
 
-	        File[] matches = directory.listFiles((dir, name) -> name.endsWith("_sk"));
+		File[] matches = directory.listFiles((dir, name) -> name
+				.endsWith("_sk"));
 
-	        if (null == matches) {
-	            throw new RuntimeException(format("Matches returned null does %s directory exist?", directory.getAbsoluteFile().getName()));
-        }
+		if (null == matches) {
+			throw new RuntimeException(format(
+					"Matches returned null does %s directory exist?", directory
+							.getAbsoluteFile().getName()));
+		}
 
-	        if (matches.length != 1) {
-	            throw new RuntimeException(format("Expected in %s only 1 sk file but found %d", directory.getAbsoluteFile().getName(), matches.length));
-	        }
+		if (matches.length != 1) {
+			throw new RuntimeException(format(
+					"Expected in %s only 1 sk file but found %d", directory
+							.getAbsoluteFile().getName(), matches.length));
+		}
 
-	        return matches[0];
+		return matches[0];
 
-	    }
-		
-	public void setAdminUser(SampleOrg sampleOrg) throws EnrollmentException, org.hyperledger.fabric_ca.sdk.exception.InvalidArgumentException{
-		
+	}
+
+	public void setAdminUser(SampleOrg sampleOrg) throws EnrollmentException,
+			org.hyperledger.fabric_ca.sdk.exception.InvalidArgumentException {
+
 		HFCAClient ca = sampleOrg.getCAClient();
 		SampleStore sampleStore = sampleOrg.getSampleStore();
-        final String orgName = sampleOrg.getName();
-        final String mspid = sampleOrg.getMSPID();
-        ca.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
-        SampleUser admin = sampleStore.getMember(TEST_ADMIN_NAME, orgName);
+		final String orgName = sampleOrg.getName();
+		final String mspid = sampleOrg.getMSPID();
+		ca.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
+		SampleUser admin = sampleStore.getMember(TEST_ADMIN_NAME, orgName);
 
-        if (!admin.isEnrolled()) {  //Preregistered admin only needs to be enrolled with Fabric caClient.
-            
-        	System.out.println("Admin is not enrolled");
-        	admin.setEnrollment(ca.enroll(admin.getName(), TEST_ADMIN_PW));
-            admin.setMspId(mspid);
-        }
+		if (!admin.isEnrolled()) { // Preregistered admin only needs to be
+									// enrolled with Fabric caClient.
 
-        sampleOrg.setAdminUser(admin); // The admin of this org --*/
+			System.out.println("Admin is not enrolled");
+			admin.setEnrollment(ca.enroll(admin.getName(), TEST_ADMIN_PW));
+			admin.setMspId(mspid);
+		}
+
+		sampleOrg.setAdminUser(admin); // The admin of this org --*/
 	}
-	
-	public SampleUser getAdminUser(String orgName){
+
+	public SampleUser getAdminUser(String orgName) {
 		return sampleOrgs.get(orgName).getAdminUser();
 	}
-	
-	public Collection<Peer> newPeers(String peers[],SampleOrg sampleOrg ) throws InvalidArgumentException{
+
+	public Collection<Peer> newPeers(String peers[], SampleOrg sampleOrg)
+			throws InvalidArgumentException {
 		Collection<Peer> targets = new Vector<>();
 		HFClient client = sampleOrg.getClient();
-		for (String peerName:peers){
-			Peer peer = client.newPeer(peerName,sampleOrg.getPeerLocation(peerName), sampleOrg.getPeerProperties(peerName));
+		for (String peerName : peers) {
+			Peer peer = client.newPeer(peerName,
+					sampleOrg.getPeerLocation(peerName),
+					sampleOrg.getPeerProperties(peerName));
 			targets.add(peer);
 		}
-		
+
 		return targets;
 	}
-	
-	public Collection<Orderer> newOrderer(SampleOrg sampleOrg, Channel newChannel ) throws InvalidArgumentException{
+
+	public Collection<Orderer> newOrderer(SampleOrg sampleOrg,
+			Channel newChannel) throws InvalidArgumentException {
 		Collection<Orderer> targets = new Vector<>();
 		HFClient client = sampleOrg.getClient();
-		for (String ordererName:sampleOrg.getOrdererNames()){
-		Orderer orderer = client.newOrderer(ordererName,
-				sampleOrg.getOrdererLocation(ordererName), sampleOrg.getordererProperties());
-		targets.add(orderer);
-	}
-		
+		for (String ordererName : sampleOrg.getOrdererNames()) {
+			Orderer orderer = client.newOrderer(ordererName,
+					sampleOrg.getOrdererLocation(ordererName),
+					sampleOrg.getordererProperties());
+			targets.add(orderer);
+		}
+
 		return targets;
 	}
-	
-	public Channel getChannelInstance(Collection<Peer> peers, String channelName, HFClient client, SampleOrg sampleOrg) throws InvalidArgumentException, TransactionException{
-		
-		// add orderer, add peer, add eventhub and initialize the channel. for all the cases do a check if they already present or not
+
+	public Channel getChannelInstance(Collection<Peer> peers,
+			String channelName, HFClient client, SampleOrg sampleOrg)
+			throws InvalidArgumentException, TransactionException {
+
+		// add orderer, add peer, add eventhub and initialize the channel. for
+		// all the cases do a check if they already present or not
 		client.setUserContext(sampleOrg.getOrgAdmin());
 		Channel newChannel = client.newChannel(channelName);
-		
+
 		// set the orderer and peers in the channel object
 		String orderName = sampleOrg.getOrdererNames().iterator().next();
 		Properties ordererProperties = sampleOrg.getordererProperties();
@@ -351,70 +388,73 @@ public class NetworkConfig {
 		ordererProperties.put(
 				"grpc.NettyChannelBuilderOption.keepAliveTimeout",
 				new Object[] { 8L, TimeUnit.SECONDS });
-		Orderer orderer = client.newOrderer(orderName, sampleOrg.getOrdererLocation(orderName),ordererProperties);
+		Orderer orderer = client.newOrderer(orderName,
+				sampleOrg.getOrdererLocation(orderName), ordererProperties);
 		if (newChannel.getOrderers().size() == 0) {
 			System.out.println("orderer org is not added");
 			newChannel.addOrderer(orderer);
 		}
-		
-		System.out.println("peer length"+peers.size());
+
+		System.out.println("peer length" + peers.size());
 		if (newChannel.getPeers().size() == 0) {
-		
-			for (Peer peer: peers){
-    			newChannel.addPeer(peer);
-    			
+
+			for (Peer peer : peers) {
+				newChannel.addPeer(peer);
+
 			}
 		}
-		for (String event:sampleOrg.getEventHubNames()){
-		
-			newChannel.addEventHub(client.newEventHub(event, sampleOrg.getEventHubLocation(event)));
+		for (String event : sampleOrg.getEventHubNames()) {
+
+			newChannel.addEventHub(client.newEventHub(event,
+					sampleOrg.getEventHubLocation(event)));
 		}
-		if (!newChannel.isInitialized())
-		{
+		if (!newChannel.isInitialized()) {
 			newChannel.initialize();
 		}
 		return newChannel;
- }
+	}
 
 	public Collection<SampleOrg> getIntegrationTestsSampleOrgs() {
-        return Collections.unmodifiableCollection(sampleOrgs.values());
-    }
-	
-	public void setOrgPeers(SampleOrg sampleOrg) throws InvalidArgumentException{
-		System.out.println("organization"+sampleOrg.getName());
-		HFClient client = sampleOrg.getClient(); 
-		client.setUserContext(sampleOrg.getOrgAdmin());
-		for (String peerName:sampleOrg.getPeerNames()){
-			System.out.println("Peer name in add peer set"+peerName);
-			Peer peer = client.newPeer(peerName,sampleOrg.getPeerLocation(peerName), sampleOrg.getPeerProperties(peerName));
-			sampleOrg.peers.add(peer);
-		}	
+		return Collections.unmodifiableCollection(sampleOrgs.values());
 	}
-	/*public static void main(String[] args) throws InvalidArgumentException {
-		NetworkConfig nc = new NetworkConfig();
-		nc.initialConfig("");
-		String cc_args[] = { "open", "key" };
-		//nc.getSampleOrg("Org1");
-		ChannelUtility util = new ChannelUtility();
-		String peers1[]={"peer0.org1.example.com","peer1.org1.example.com"};
-		String peers2[]={"peer0.org2.example.com","peer1.org2.example.com"};
-		Collection<Peer> porg1 = nc.newPeers(peers1, nc.getSampleOrg("Org1"));
-		Collection<Peer>targetPeer=new Vector<Peer>();
-		Collection<Peer> porg2 = nc.newPeers(peers2, nc.getSampleOrg("Org2"));
-		for (Peer peer:porg1){
-			targetPeer.add(peer);
+
+	public void setOrgPeers(SampleOrg sampleOrg)
+			throws InvalidArgumentException {
+		System.out.println("organization" + sampleOrg.getName());
+		HFClient client = sampleOrg.getClient();
+		client.setUserContext(sampleOrg.getOrgAdmin());
+		for (String peerName : sampleOrg.getPeerNames()) {
+			System.out.println("Peer name in add peer set" + peerName);
+			Peer peer = client.newPeer(peerName,
+					sampleOrg.getPeerLocation(peerName),
+					sampleOrg.getPeerProperties(peerName));
+			sampleOrg.peers.add(peer);
 		}
-		for (Peer peer:porg2){
-			targetPeer.add(peer);
-		}
-		//util.createChannel("mychannel", channelConfigPath, nc.getSampleOrg("Org1"));
-		//util.joinChannel("mychannel",peers, nc.getSampleOrg("Org1"));
-	
-		ChaincodeUtility cc = new ChaincodeUtility();
-		//cc.installChaincode(peers1, "simple", "0", "simple", nc.getSampleOrg("Org1"));
-		//cc.installChaincode(peers2, "simple", "0", "simple", nc.getSampleOrg("Org2"));
-		//cc.instantiateChaincode("mychannel", "simple", "0", "simple", "init", cc_args, nc.getSampleOrg("Org1"));
-		cc.invokeChaincode(targetPeer, "simple1", "1", "simple1", "open", cc_args, "mychannel", nc.getSampleOrg("Org1"));
-		//cc.invokeChaincode(targetPeer, chaincodeName, chaincodeVersion, chaincodePath, functionName, cc_args, channelName, sampleOrg);
-	}*/
+	}
+	/*
+	 * public static void main(String[] args) throws InvalidArgumentException {
+	 * NetworkConfig nc = new NetworkConfig(); nc.initialConfig(""); String
+	 * cc_args[] = { "open", "key" }; //nc.getSampleOrg("Org1"); ChannelUtility
+	 * util = new ChannelUtility(); String
+	 * peers1[]={"peer0.org1.example.com","peer1.org1.example.com"}; String
+	 * peers2[]={"peer0.org2.example.com","peer1.org2.example.com"};
+	 * Collection<Peer> porg1 = nc.newPeers(peers1, nc.getSampleOrg("Org1"));
+	 * Collection<Peer>targetPeer=new Vector<Peer>(); Collection<Peer> porg2 =
+	 * nc.newPeers(peers2, nc.getSampleOrg("Org2")); for (Peer peer:porg1){
+	 * targetPeer.add(peer); } for (Peer peer:porg2){ targetPeer.add(peer); }
+	 * //util.createChannel("mychannel", channelConfigPath,
+	 * nc.getSampleOrg("Org1")); //util.joinChannel("mychannel",peers,
+	 * nc.getSampleOrg("Org1"));
+	 * 
+	 * ChaincodeUtility cc = new ChaincodeUtility();
+	 * //cc.installChaincode(peers1, "simple", "0", "simple",
+	 * nc.getSampleOrg("Org1")); //cc.installChaincode(peers2, "simple", "0",
+	 * "simple", nc.getSampleOrg("Org2"));
+	 * //cc.instantiateChaincode("mychannel", "simple", "0", "simple", "init",
+	 * cc_args, nc.getSampleOrg("Org1")); cc.invokeChaincode(targetPeer,
+	 * "simple1", "1", "simple1", "open", cc_args, "mychannel",
+	 * nc.getSampleOrg("Org1")); //cc.invokeChaincode(targetPeer, chaincodeName,
+	 * chaincodeVersion, chaincodePath, functionName, cc_args, channelName,
+	 * sampleOrg); }
+	 */
 }

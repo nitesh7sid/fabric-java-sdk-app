@@ -1,21 +1,31 @@
 package com.psl.app;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-@Path("/hello")
+@Path("/users")
 public class Application {
 
 	@GET
-	@Path("/{param}")
-	public Response getMsg(@PathParam("param") String msg) {
+	@Path("/register")
+	public Response registerUser(@QueryParam("userName") String userName,
+			@QueryParam("userOrg") String userOrg) {
 
-		String output = "Jersey say : " + msg;
+		return Response.status(200).build();
+		
+	}
+	
+	@POST
+	@Path("/enroll")
+	public Response enrollUser(@QueryParam("userName") String userName,
+			@QueryParam("enrollSecret") String enrollSecret,@QueryParam("userOrg") String userOrg) {
 
-		return Response.status(200).entity(output).build();
-
+		return Response.status(200).build();
+		
 	}
 
 }
