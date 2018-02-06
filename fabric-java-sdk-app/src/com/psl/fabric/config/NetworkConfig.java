@@ -41,8 +41,8 @@ import javax.json.JsonValue;
 public class NetworkConfig {
 
 	private static String pathPrefix = "C:/Users/nitesh_solanki/workspace/fabric-java-sdk-app/WebContent/fixture";
-	private static final String TEST_ADMIN_NAME = "admin";
-	private static final String TEST_ADMIN_PW = "adminpw";
+	public static final String TEST_ADMIN_NAME = "admin";
+	public static final String TEST_ADMIN_PW = "adminpw";
 	static int GOSSIPWAITTIME = 5000;
 	static int INVOKEWAITTIME = 100000;
 	static int DEPLOYWAITTIME = 120000;
