@@ -39,7 +39,7 @@ public class CAUtility {
 	
 	public static String registerUser(String userName, String orgName,
 			String affiliation
-		) throws RegistrationException, InvalidArgumentException, EnrollmentException, org.hyperledger.fabric_ca.sdk.exception.InvalidArgumentException, Exception {
+		) throws Exception {
 		System.out.println(orgName);
 		NetworkConfig config = new NetworkConfig();
 		SampleOrg sampleOrg = config.getSampleOrg(orgName);

@@ -1,50 +1,75 @@
 package com.psl.app;
 
-import java.io.Serializable;
+import com.owlike.genson.annotation.JsonProperty;
 
-import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
-public class RequestData {
+ class RegistrationRequestData {
+	 //@JsonProperty
+	String userAffiliation;
+	String userName;
+	String userOrg;
 
-	public RequestData() {
-		       super();
-		  }
+	public String getuserOrg() {
+		return userOrg;
+	}
 
-	//class RegistrationRequest{
-		private String username;
-		private String userorg;
-		private String useraffiliation;
+	public void setUserOrg(String userOrg) {
+		this.userOrg = userOrg;
+	}
+
+	public String getUserOrg() {
+		return userOrg;
+	}
+
+	public String getUserAffiliatiaon() {
+		return userAffiliation;
+	}
+
+	public void setUserAffiliatiaon(String userAffiliation) {
+		this.userAffiliation = userAffiliation;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	@Override
+	public String toString() {
+		return "Track [userAffiliation=" + userAffiliation + ", userName="
+				+ userName + ", userOrg=" + userOrg + "]";
+	}
 		
-		public String getUsername() {
-			return username;
+}
+ 
+ class EnrollRequestData{
+	 	String enrollmentSecret;
+		String userName;
+		String userOrg;
+		public String getEnrollmentSecret() {
+			return enrollmentSecret;
 		}
-
-		public void setUsername(String username) {
-			this.username = username;
+		public void setEnrollmentSecret(String enrollmentSecret) {
+			this.enrollmentSecret = enrollmentSecret;
 		}
-
-		public String getOrg() {
-			return userorg;
+		public String getUserName() {
+			return userName;
 		}
-
-		public void setOrg(String org) {
-			this.userorg = org;
+		public void setUserName(String userName) {
+			this.userName = userName;
 		}
-
-		public String getUseraffiliation() {
-			return useraffiliation;
+		public String getUserOrg() {
+			return userOrg;
 		}
-
-		public void setUseraffiliation(String useraffiliation) {
-			this.useraffiliation = useraffiliation;
-		}
-
 		@Override
 		public String toString() {
-			return "RegistrationRequest [userName=" + username + ", userorg="
-					+ userorg + ", userAffiliation=" + useraffiliation + "]";
+			return "EnrollRequest [enrollmentSecret=" + enrollmentSecret
+					+ ", userName=" + userName + ", userOrg=" + userOrg + "]";
 		}
-		
-	//}
-}
+		public void setUserOrg(String userOrg) {
+			this.userOrg = userOrg;
+		}
+ }
