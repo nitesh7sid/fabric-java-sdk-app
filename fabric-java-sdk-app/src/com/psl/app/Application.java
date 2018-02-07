@@ -90,4 +90,30 @@ public class Application {
 		response.put("message", "Channel"+" "+channelName+" "+"created Successfully");
 		return Response.status(201).entity(response).build();
 	}
+	
+	@POST
+	@Path("/channel/{channelname}/peers")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response joinChannel(@PathParam("channelname") String channelname, JoinChannelRequestData request){
+		JSONObject response = new JSONObject();
+		boolean flag = false;
+		try {
+			flag = ChannelUtility.joinChannel(channelname, request.getPeers(), request.getUserOrg());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			response.put("message",  e.getMessage());
+			return Response.status(500).entity(response).build();
+		}
+		if (flag){	
+		
+			response.put("message", "peer joined channel successfully");
+		}else{
+			response.put("message", "peer joined channel failed");
+		}
+		
+		return Response.status(201).entity(response).build();
+		
+	}
 }

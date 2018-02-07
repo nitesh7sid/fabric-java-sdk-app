@@ -76,8 +76,8 @@ public class ChannelUtility {
 		return createChannelHelper(channelName, config.pathPrefix+channelConfigPath, sampleOrg);
 	}
 	
-	private static void joinChannelHelper(String channelName, String peers[],
-			SampleOrg sampleOrg) {
+	private static boolean joinChannelHelper(String channelName, String peers[],
+			SampleOrg sampleOrg) throws Exception {
 
 		// add eventHub to get Join channel confirmation
 		HFClient client = sampleOrg.getClient();
@@ -94,8 +94,6 @@ public class ChannelUtility {
 		ordererProperties.put(
 				"grpc.NettyChannelBuilderOption.keepAliveTimeout",
 				new Object[] { 8L, TimeUnit.SECONDS });
-
-		try {
 			client.setUserContext(orgAdmin);
 			// check if orderer is already present or not
 			Orderer orderer = client.newOrderer(orderName,
@@ -128,26 +126,18 @@ public class ChannelUtility {
 
 			if (verifyJoinChannel(client, newChannel)) {
 				System.out.println("Peers joined successfully");
-				// return here
+				 return true;
 			}
-
-		} catch (InvalidArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ProposalException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (AssertionError e) {
-			// peer nor joined channel
-
-		}
+			else{
+				return false;
+			}
 	}
 
-	public static void joinChannel(String channelName, String peers[],
-			String orgName){
+	public static boolean joinChannel(String channelName, String peers[],
+			String orgName) throws Exception{
 		NetworkConfig config = new NetworkConfig();
 		SampleOrg sampleOrg = config.getSampleOrg(orgName);
-		joinChannelHelper(channelName, peers, sampleOrg);
+		return joinChannelHelper(channelName, peers, sampleOrg);
 	}
 	
 	private static boolean verifyJoinChannel(HFClient client, Channel newChannel)

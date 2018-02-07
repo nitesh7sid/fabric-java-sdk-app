@@ -1,11 +1,13 @@
 package com.psl.app;
 
+import java.util.Arrays;
+
  class CreateChannelRequestData {
 
 	 @Override
 	public String toString() {
 		return "CreateChannelRequestData [channelName=" + channelName
-				+ ", channelPath=" + channelPath + ", orgName=" + orgName + "]";
+				+ ", channelPath=" + channelPath + ", userOrg=" + userOrg + "]";
 	}
 	public String getChannelName() {
 		return channelName;
@@ -20,12 +22,38 @@ package com.psl.app;
 		this.channelPath = channelPath;
 	}
 	public String getOrgName() {
-		return orgName;
+		return userOrg;
 	}
-	public void setOrgName(String orgName) {
-		this.orgName = orgName;
+	public void setOrgName(String userOrg) {
+		this.userOrg = userOrg;
 	}
 	String channelName;
 	 String channelPath;
-	 String orgName;
+	 String userOrg;
 }
+
+ class JoinChannelRequestData {
+	
+	 @Override
+	public String toString() {
+		return "JoinChannelRequestData [peers=" + Arrays.toString(peers)
+				 + ", userOrg=" + userOrg + "]";
+	}
+	public String[] getPeers() {
+		return peers;
+	}
+	public void setPeers(String[] peers) {
+		this.peers = peers;
+	}
+
+	public String getUserOrg() {
+		return userOrg;
+	}
+	public void setUserOrg(String userOrg) {
+		this.userOrg = userOrg;
+	}
+	
+	
+	 String peers[];
+	 String userOrg;
+ }
