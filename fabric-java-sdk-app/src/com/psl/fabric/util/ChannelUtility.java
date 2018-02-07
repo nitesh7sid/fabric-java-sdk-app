@@ -7,7 +7,9 @@ import java.util.LinkedList;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
 import static java.lang.String.format;
+
 import org.hyperledger.fabric.protos.common.Common.Block;
 import org.hyperledger.fabric.sdk.BlockInfo;
 import org.hyperledger.fabric.sdk.Channel;
@@ -19,18 +21,18 @@ import org.hyperledger.fabric.sdk.Peer;
 import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
 import org.hyperledger.fabric.sdk.exception.ProposalException;
 import org.hyperledger.fabric.sdk.exception.TransactionException;
+
 import com.psl.fabric.config.*;
 
 public class ChannelUtility {
 
-	// TODO: make these private functions and add a public function which just
+	// TODO: make these as private functions and add a public function which just
 	// calls these private fnc.
-	public void createChannel(String channelName, String channelConfigPath,
-			SampleOrg sampleOrg) {
+	private static String createChannelHelper(String channelName, String channelConfigPath,
+			SampleOrg sampleOrg) throws Exception {
 
 		HFClient client = sampleOrg.getClient();
 		SampleUser orgAdmin = sampleOrg.getOrgAdmin();
-		try {
 			client.setUserContext(orgAdmin);
 
 			String orderName = sampleOrg.getOrdererNames().iterator().next();
@@ -64,20 +66,17 @@ public class ChannelUtility {
 			newChannel.addOrderer(orderer);
 
 			System.out.println("channel created:" + newChannel.getName());
-
-		} catch (InvalidArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TransactionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			return newChannel.getName();
 	}
 
-	public void joinChannel(String channelName, String peers[],
+	public static String createChannel(String channelName, String channelConfigPath,
+			String orgName) throws Exception{
+		NetworkConfig config = new NetworkConfig();
+		SampleOrg sampleOrg = config.getSampleOrg(orgName);
+		return createChannelHelper(channelName, config.pathPrefix+channelConfigPath, sampleOrg);
+	}
+	
+	private static void joinChannelHelper(String channelName, String peers[],
 			SampleOrg sampleOrg) {
 
 		// add eventHub to get Join channel confirmation
@@ -122,7 +121,8 @@ public class ChannelUtility {
 				Peer peer = client.newPeer(peerName,
 						sampleOrg.getPeerLocation(peerName), peerProperties);
 				newChannel.joinPeer(peer);
-				//sampleOrg.addPeer(peer);--? if Set<Peer>not used, remove from SampleOrg
+				// sampleOrg.addPeer(peer);--? if Set<Peer>not used, remove from
+				// SampleOrg
 
 			}
 
@@ -143,7 +143,14 @@ public class ChannelUtility {
 		}
 	}
 
-	public boolean verifyJoinChannel(HFClient client, Channel newChannel)
+	public static void joinChannel(String channelName, String peers[],
+			String orgName){
+		NetworkConfig config = new NetworkConfig();
+		SampleOrg sampleOrg = config.getSampleOrg(orgName);
+		joinChannelHelper(channelName, peers, sampleOrg);
+	}
+	
+	private static boolean verifyJoinChannel(HFClient client, Channel newChannel)
 			throws InvalidArgumentException, ProposalException {
 
 		System.out.println("peer length" + newChannel.getPeers().size());
@@ -159,7 +166,7 @@ public class ChannelUtility {
 		return true;
 	}
 
-	public String registerBlockListener(HFClient client, Channel newChannel,
+	private String registerBlockListener(HFClient client, Channel newChannel,
 			SampleOrg sampleOrg) throws InvalidArgumentException,
 			TransactionException {
 		for (String eventHubName : sampleOrg.getEventHubNames()) {

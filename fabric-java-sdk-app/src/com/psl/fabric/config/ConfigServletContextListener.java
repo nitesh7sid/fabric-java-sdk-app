@@ -23,9 +23,9 @@ public class ConfigServletContextListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent arg0) {
 		// TODO Auto-generated method stub
 		
-		System.out.print("started");
-	
+		System.out.print("started"+ arg0.getServletContext().getRealPath("/"));
 		NetworkConfig config = new NetworkConfig();
+		config.pathPrefix = arg0.getServletContext().getRealPath("/");
 		try {
 			config.initialConfig("C:/Users/nitesh_solanki/workspace/fabric-java-sdk-app/WebContent/fixture/config.json");
 		} catch (FileNotFoundException e) {

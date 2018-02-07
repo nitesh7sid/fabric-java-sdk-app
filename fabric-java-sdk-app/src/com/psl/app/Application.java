@@ -15,6 +15,7 @@ import org.hyperledger.fabric_ca.sdk.exception.InvalidArgumentException;
 import org.json.simple.JSONObject;
 
 import com.psl.fabric.util.CAUtility;
+import com.psl.fabric.util.ChannelUtility;
 
 @Path("/api")
 public class Application {
@@ -67,4 +68,26 @@ public class Application {
 		
 	}
 
+	@POST
+	@Path("/channel")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response createChannel(CreateChannelRequestData request){
+		
+		JSONObject response = new JSONObject();
+		String channelName = "";
+		System.out.println("Input "+request);
+		try {
+			
+			 channelName = ChannelUtility.createChannel(request.getChannelName(), request.getChannelPath(), request.getOrgName());
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			response.put("message", e.getMessage());
+			return Response.status(500).entity(response).build();
+		}
+		response.put("message", "Channel"+" "+channelName+" "+"created Successfully");
+		return Response.status(201).entity(response).build();
+	}
 }

@@ -40,7 +40,7 @@ import javax.json.JsonValue;
 
 public class NetworkConfig {
 
-	private static String pathPrefix = "C:/Users/nitesh_solanki/workspace/fabric-java-sdk-app/WebContent/fixture";
+	public static String pathPrefix = "";
 	public static final String TEST_ADMIN_NAME = "admin";
 	public static final String TEST_ADMIN_PW = "adminpw";
 	static int GOSSIPWAITTIME = 5000;
