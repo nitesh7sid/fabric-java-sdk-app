@@ -64,7 +64,7 @@ public class ChaincodeUtility {
 			installProposalRequest.setChaincodeID(chaincodeID);
 			// GOPATH..READ FROM CONFIG.JSON
 			installProposalRequest.setChaincodeSourceLocation(new File(
-					"C:/Users/nitesh_solanki/go"));
+					nconfig.GOPATH));
 			installProposalRequest.setChaincodeVersion(chaincodeVersion);
 			responses = client.sendInstallProposal(installProposalRequest,
 					nconfig.newPeers(peers, sampleOrg));

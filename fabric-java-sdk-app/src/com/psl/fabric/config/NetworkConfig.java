@@ -40,6 +40,7 @@ import javax.json.JsonValue;
 
 public class NetworkConfig {
 
+	public static String GOPATH="";
 	public static String pathPrefix = "";
 	public static final String TEST_ADMIN_NAME = "admin";
 	public static final String TEST_ADMIN_PW = "adminpw";
@@ -52,12 +53,13 @@ public class NetworkConfig {
 
 	public void initialConfig(String configPath) throws FileNotFoundException, IOException, ParseException {
 
-		System.out.println(System.getProperty("user.dir"));
 		JSONParser parser = new JSONParser();
 		Object configParsedObj = parser.parse(new FileReader(configPath));
 		JSONObject configObject = (JSONObject) configParsedObj;
 		String networkConfigPath = (String) configObject
 				.get("networkConfig");
+		GOPATH = (String) configObject
+				.get("GOPATH");
 
 		try {
 
