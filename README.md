@@ -17,4 +17,6 @@
 * Run the application on tomcat
 * Rest server will be started at port 8080 with Url `http://localhost:8080/fabric-java-sdk-app/api` for testing api's.
 
-#### TODO: Documentation on Rest API's
+#### TODO: 
+* Documentation on Rest API's
+* Rest API's for Install, Instantiate, invoke, query chaincode.
