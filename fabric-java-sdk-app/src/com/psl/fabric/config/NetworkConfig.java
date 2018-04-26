@@ -265,7 +265,7 @@ public class NetworkConfig {
 		File sampleStoreFile = new File(System.getProperty("java.io.tmpdir")
 				+ "/HFCSampletest" + sampleOrg.name + ".properties");
 		if (sampleStoreFile.exists()) { // For testing start fresh
-			sampleStoreFile.delete();
+		//	sampleStoreFile.delete();
 		}
 
 		SampleStore sampleStore = new SampleStore(sampleStoreFile);
